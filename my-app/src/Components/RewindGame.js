@@ -1,7 +1,6 @@
 // components/ConcentricCircles.js
 import React, {useEffect, useState} from 'react';
 import RewindLevel from './RewindLevel';
-import stl from './Game.css';
 function RewindGame ({nLevels}) {
   const [lookAtAngle, setLookAngle]       = useState({lookAtAngle: 0 });
   const [currentLevel, setCurrentLevel]   = useState({currentLevel: 1});
