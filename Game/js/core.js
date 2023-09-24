@@ -100,6 +100,7 @@ var Core = new function(){
 
 			// Define our player
 			player = new Player();
+			player.setProjects([1,2,3]);
 
 			// Force an initial resize to make sure the UI is sized correctly
 			windowResizeHandler();
@@ -401,7 +402,7 @@ var Core = new function(){
 			// Core
 			context.beginPath();
 			context.fillStyle = player.currentProject.color;
-			context.strokeStyle = "#3be2d4";
+			context.strokeStyle = "##1852F0";
 			context.lineWidth = 1.5;
 
 			player.updateCore();
@@ -655,6 +656,7 @@ function Player() {
 	this.coreNodes = [];
 	this.projects = [];
 	this.currentProject = new Project();
+	this.currentProjectIndex = 0;
 }
 Player.prototype = new Point();
 Player.prototype.setProjects = function(projectIds) {
@@ -662,7 +664,7 @@ Player.prototype.setProjects = function(projectIds) {
 	
 	for(i=0; i<projectIds.length; i++){
 		for(j=0; j<projects.length; j++){
-			if(projectIds[i] == projects[j])
+			if(projectIds[i] == projects[j].id)
 			{
 				this.projects.push(projects[j]);
 			}
@@ -678,6 +680,7 @@ Player.prototype.updateCurrentProject = function(){
 		if(this.currentProject == projects[i])
 		{
 			this.currentProject = projects[i+1];
+			this.currentProjectIndex = i+1;
 			return;
 		}
 	}
