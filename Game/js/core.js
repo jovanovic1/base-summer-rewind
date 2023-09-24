@@ -400,7 +400,7 @@ var Core = new function(){
 
 			// Core
 			context.beginPath();
-			context.fillStyle = "#f585de";
+			context.fillStyle = player.currentProject.color;
 			context.strokeStyle = "#3be2d4";
 			context.lineWidth = 1.5;
 
@@ -524,7 +524,7 @@ var Core = new function(){
 
 			// If the enemy is dead, remove it
 			if( p.dead ) {
-				emitParticles( p.position, { x: (p.position.x - player.position.x) * 0.02, y: (p.position.y - player.position.y) * 0.02 }, 5, 5 );
+				emitParticles( p.position, { x: (p.position.x - player.position.x) * 0.02, y: (p.position.y - player.position.y) * 0.02 }, 5, 3 );
 
 				organisms.splice( i, 1 );
 				i --;
@@ -653,8 +653,36 @@ function Player() {
 	this.angle = 0;
 	this.coreQuality = 16;
 	this.coreNodes = [];
+	this.projects = [];
+	this.currentProject = new Project();
 }
 Player.prototype = new Point();
+Player.prototype.setProjects = function(projectIds) {
+	var i,j;
+	
+	for(i=0; i<projectIds.length; i++){
+		for(j=0; j<projects.length; j++){
+			if(projectIds[i] == projects[j])
+			{
+				this.projects.push(projects[j]);
+			}
+		}
+	}
+
+	this.currentProject = projects[0];
+}
+
+Player.prototype.updateCurrentProject = function(){
+	var i;
+	for(i=0; i<this.projects.length; i++){
+		if(this.currentProject == projects[i])
+		{
+			this.currentProject = projects[i+1];
+			return;
+		}
+	}
+}
+
 Player.prototype.updateCore = function() {
 	var i, j, n;
 
@@ -704,6 +732,19 @@ function Energy() {
 	this.type = 'energy';
 }
 Energy.prototype = new Point();
+
+function Project(id, color, name) {
+	this.id = id;
+	this.color = color;
+	this.name = name;
+}
+
+const projects = [
+	new Project(1, '#F5E5CD', 'Fini'),
+	new Project(2, '#C8E363', 'Oak'),
+	new Project(3, '#5720F5', 'Onboard'),
+	new Project(4, '#1852F0', 'Base')
+  ];
 
 // shim with setTimeout fallback from http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 window.requestAnimFrame = (function(){
