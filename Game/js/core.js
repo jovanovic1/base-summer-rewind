@@ -102,7 +102,7 @@ var Core = new function(){
 
 			// Define our player
 			player = new Player();
-			player.setProjects([1,2]);
+			player.setProjects([1,2,3]);
 			console.log(player.projects);
 
 			// Force an initial resize to make sure the UI is sized correctly
@@ -410,13 +410,18 @@ var Core = new function(){
 
 			if(score>1){
 				if(Math.round(score)%300 == 0 && Math.round(score) >Math.round(scoreOnLastUpdate)){
+					console.log("##11");
 					if(lastRound)
 					{
 						gameOver();
 					}
 					else{
+						console.log("##lol");
 						player.updateCurrentProject();
 						scoreOnLastUpdate = score;
+						player.energyRadiusTarget += player.energyIncOffset;
+						player.radius += player.energyIncOffset;
+						
 						if(player.currentProject == player.projects[player.projects.length - 1])
 						{
 							lastRound = true;
@@ -454,6 +459,7 @@ var Core = new function(){
 			context.stroke();
 
 			// Core
+			console.log(player.currentProject.color);
 			context.beginPath();
 			context.fillStyle = player.currentProject.color;
 			context.strokeStyle = player.currentProject.color;
@@ -462,340 +468,335 @@ var Core = new function(){
 			context.closePath();
 			context.fill();
 			context.stroke();
-		
-			context.beginPath();
-			context.strokeStyle = '#648d93';
-			context.lineWidth = 5;
-			context.arc( player.position.x, player.position.y, player.energyRadius, 0, Math.PI*2, true );
-			context.stroke();
 
-		}
-
-		if( spaceIsDown && player.energy > 10 ) {
-			player.energy -= 0.1;
-
-			context.beginPath();
-			context.strokeStyle = '#648d93';
-			context.lineWidth = 1;
-			context.fillStyle = 'rgba( 0, 100, 100, ' + ( player.energy / 100 ) * 0.9 + ' )';
-			context.arc( player.position.x, player.position.y, player.radius, 0, Math.PI*2, true );
-			context.fill();
-			context.stroke();
-
-			// play sound for the shield
-			CoreAudio.playShield();
-		}
-
-		var enemyCount = 0;
-		var energyCount = 0;
-
-		// Go through each enemy and draw it + update its properties
-		for( i = 0; i < organisms.length; i++ ) {
-			p = organisms[i];
-
-			p.position.x += p.velocity.x;
-			p.position.y += p.velocity.y;
-
-			p.alpha += ( 1 - p.alpha ) * 0.1;
-
-			if( p.type == ORGANISM_ENEMY ) context.fillStyle = 'rgba( 255, 0, 0, ' + p.alpha + ' )';
-			if( p.type == ORGANISM_ENERGY ) context.fillStyle = 'rgba( 0, 235, 190, ' + p.alpha + ' )';
-
-			context.beginPath();
-			context.arc(p.position.x, p.position.y, p.size/2, 0, Math.PI*2, true);
-			context.fill();
-
-			var angle = Math.atan2( p.position.y - player.position.y, p.position.x - player.position.x );
-
-			if (playing) {
-
-				var dist = Math.abs( angle - player.angle );
-
-				if( dist > Math.PI ) {
-					dist = ( Math.PI * 2 ) - dist;
-				}
-
-				if ( dist < 1.6 ) {
-					if (p.distanceTo(player.position) > player.radius - 5 && p.distanceTo(player.position) < player.radius + 5) {
-						p.dead = true;
-
-						// play sound
-						CoreAudio.organismDead();
-					}
-				}
-
-				if (spaceIsDown && p.distanceTo(player.position) < player.radius && player.energy > 11) {
-					p.dead = true;
-					score += 4;
-				}
-
-				if (p.distanceTo(player.position) < player.energyRadius + (p.size * 0.5)) {
-					if (p.type == ORGANISM_ENEMY) {
-						player.energy -= 6;
-
-						// play sound
-						CoreAudio.energyDown();
-					}
-
-					if (p.type == ORGANISM_ENERGY) {
-						player.energy += 8;
-						score += 30;
-
-						// play sound
-						CoreAudio.energyUp();
-					}
-
-					player.energy = Math.max(Math.min(player.energy, 100), 0);
-
-					p.dead = true;
+			if(player.currentProjectIndex >0)
+			{
+				var i,j;
+				for(i=0; i<player.currentProjectIndex-1; i++)
+				{
+					context.beginPath();
+					context.strokeStyle = player.projects[i].color;
+					context.lineWidth = player.energyIncOffset * i;
+					context.arc( player.position.x, player.position.y, player.energyRadius, 0, Math.PI*2, true );
+					context.stroke();
 				}
 			}
+        }
 
-			// If the enemy is outside of the game bounds, destroy it
-			if( p.position.x < -p.size || p.position.x > world.width + p.size || p.position.y < -p.size || p.position.y > world.height + p.size ) {
-				p.dead = true;
-			}
+        if (spaceIsDown && player.energy > 10) {
+            player.energy -= 0.1;
 
-			// If the enemy is dead, remove it
-			if( p.dead ) {
-				emitParticles( p.position, { x: (p.position.x - player.position.x) * 0.02, y: (p.position.y - player.position.y) * 0.02 }, 5, 3 );
+            context.beginPath();
+            context.strokeStyle = '#648d93';
+            context.lineWidth = 1;
+            context.fillStyle = 'rgba( 0, 100, 100, ' + (player.energy / 100) * 0.9 + ' )';
+            context.arc(player.position.x, player.position.y, player.radius, 0, Math.PI * 2, true);
+            context.fill();
+            context.stroke();
 
-				organisms.splice( i, 1 );
-				i --;
-			}
-			else {
-				if( p.type == ORGANISM_ENEMY ) enemyCount ++;
-				if( p.type == ORGANISM_ENERGY ) energyCount ++;
-			}
-		}
+            // play sound for the shield
+            CoreAudio.playShield();
+        }
 
-		// If there are less enemies than intended for this difficulty, add another one
-		if( enemyCount < 1 * difficulty && new Date().getTime() - lastspawn > 500 ) {
-			organisms.push( giveLife( new Enemy() ) );
-			lastspawn = new Date().getTime();
-		}
+        var enemyCount = 0;
+        var energyCount = 0;
 
-		//
-		if( energyCount < 1 && Math.random() > 0.995 ) {
-			organisms.push( giveLife( new Energy() ) );
-		}
+        // Go through each enemy and draw it + update its properties
+        for (i = 0; i < organisms.length; i++) {
+            p = organisms[i];
 
-		// Go through and draw all particle effects
-		for( i = 0; i < particles.length; i++ ) {
-			p = particles[i];
+            p.position.x += p.velocity.x;
+            p.position.y += p.velocity.y;
 
-			// Apply velocity to the particle
-			p.position.x += p.velocity.x;
-			p.position.y += p.velocity.y;
+            p.alpha += (1 - p.alpha) * 0.1;
 
-			// Fade out
-			p.alpha -= 0.02;
+            if (p.type == ORGANISM_ENEMY) context.fillStyle = 'rgba( 255, 0, 0, ' + p.alpha + ' )';
+            if (p.type == ORGANISM_ENERGY) context.fillStyle = 'rgba( 0, 235, 190, ' + p.alpha + ' )';
 
-			// Draw the particle
-			context.fillStyle = 'rgba(255,255,255,'+Math.max(p.alpha,0)+')';
-			context.fillRect( p.position.x, p.position.y, 1, 1 );
+            context.beginPath();
+            context.arc(p.position.x, p.position.y, p.size / 2, 0, Math.PI * 2, true);
+            context.fill();
 
-			// If the particle is faded out to less than zero, remove it
-			if( p.alpha <= 0 ) {
-				particles.splice( i, 1 );
-			}
-		}
+            var angle = Math.atan2(p.position.y - player.position.y, p.position.x - player.position.x);
 
-		// If the game is active, update the game status bar with score, duration and FPS
-		if( playing ) {
-			scoreText = 'Score: <span>' + Math.round( score ) + '</span>';
-			scoreText += ' Time: <span>' + Math.round( ( ( new Date().getTime() - time ) / 1000 ) * 100 ) / 100 + 's</span>';
-			scoreText += ' <p class="fps">FPS: <span>' + Math.round( fps ) + ' ('+Math.round(Math.max(Math.min(fps/FRAMERATE, FRAMERATE), 0)*100)+'%)</span></p>';
-			status.innerHTML = scoreText;
+            if (playing) {
 
-			if( player.energy === 0 ) {
-				emitParticles( player.position, { x: 0, y: 0 }, 10, 40 );
+                var dist = Math.abs(angle - player.angle);
 
-				gameOver();
+                if (dist > Math.PI) {
+                    dist = (Math.PI * 2) - dist;
+                }
 
-				// play sound
-				CoreAudio.playGameOver();
-			}
-		}
+                if (dist < 1.6) {
+                    if (p.distanceTo(player.position) > player.radius - 5 && p.distanceTo(player.position) < player.radius + 5) {
+                        p.dead = true;
 
-		requestAnimFrame( animate );
-	}
+                        // play sound
+                        CoreAudio.organismDead();
+                    }
+                }
 
-	/**
-	 *
-	 */
-	function giveLife( organism ) {
-		var side = Math.round( Math.random() * 3 );
+                if (spaceIsDown && p.distanceTo(player.position) < player.radius && player.energy > 11) {
+                    p.dead = true;
+                    score += 4;
+                }
 
-		switch( side ) {
-			case 0:
-				organism.position.x = 10;
-				organism.position.y = world.height * Math.random();
-				break;
-			case 1:
-				organism.position.x = world.width * Math.random();
-				organism.position.y = 10;
-				break;
-			case 2:
-				organism.position.x = world.width - 10;
-				organism.position.y = world.height * Math.random();
-				break;
-			case 3:
-				organism.position.x = world.width * Math.random();
-				organism.position.y = world.height - 10;
-				break;
-		}
+                if (p.distanceTo(player.position) < player.energyRadius + (p.size * 0.5)) {
+                    if (p.type == ORGANISM_ENEMY) {
+                        player.energy -= 6;
 
-		if( playing ) CoreAudio.playSynth( organism.position.x / world.width );
+                        // play sound
+                        CoreAudio.energyDown();
+                    }
 
-		organism.speed = Math.min( Math.max( Math.random(), 0.6 ), 0.75 );
+                    if (p.type == ORGANISM_ENERGY) {
+                        player.energy += 8;
+                        score += 30;
 
-		organism.velocity.x = ( player.position.x - organism.position.x ) * 0.006 * organism.speed;
-		organism.velocity.y = ( player.position.y - organism.position.y ) * 0.006 * organism.speed;
+                        // play sound
+                        CoreAudio.energyUp();
+                    }
 
-		if( organism.type == 'enemy' ) {
-			organism.velocity.x *= (1+(Math.random()*0.1));
-			organism.velocity.y *= (1+(Math.random()*0.1));
-		}
+                    player.energy = Math.max(Math.min(player.energy, 100), 0);
 
-		organism.alpha = 0;
+                    p.dead = true;
+                }
+            }
 
-		return organism;
-	}
+            // If the enemy is outside of the game bounds, destroy it
+            if (p.position.x < -p.size || p.position.x > world.width + p.size || p.position.y < -p.size || p.position.y > world.height + p.size) {
+                p.dead = true;
+            }
+
+            // If the enemy is dead, remove it
+            if (p.dead) {
+                emitParticles(p.position, {
+                    x: (p.position.x - player.position.x) * 0.02,
+                    y: (p.position.y - player.position.y) * 0.02
+                }, 5, 3);
+
+                organisms.splice(i, 1);
+                i--;
+            } else {
+                if (p.type == ORGANISM_ENEMY) enemyCount++;
+                if (p.type == ORGANISM_ENERGY) energyCount++;
+            }
+        }
+
+        // If there are less enemies than intended for this difficulty, add another one
+        if (enemyCount < 1 * difficulty && new Date().getTime() - lastspawn > 500) {
+            organisms.push(giveLife(new Enemy()));
+            lastspawn = new Date().getTime();
+        }
+
+        //
+        if (energyCount < 1 && Math.random() > 0.995) {
+            organisms.push(giveLife(new Energy()));
+        }
+
+        // Go through and draw all particle effects
+        for (i = 0; i < particles.length; i++) {
+            p = particles[i];
+
+            // Apply velocity to the particle
+            p.position.x += p.velocity.x;
+            p.position.y += p.velocity.y;
+
+            // Fade out
+            p.alpha -= 0.02;
+
+            // Draw the particle
+            context.fillStyle = 'rgba(255,255,255,' + Math.max(p.alpha, 0) + ')';
+            context.fillRect(p.position.x, p.position.y, 5, 5);
+
+            // If the particle is faded out to less than zero, remove it
+            if (p.alpha <= 0) {
+                particles.splice(i, 1);
+            }
+        }
+
+        // If the game is active, update the game status bar with score, duration and FPS
+        if (playing) {
+            scoreText = 'Score: <span>' + Math.round(score) + '</span>';
+            scoreText += ' Time: <span>' + Math.round(((new Date().getTime() - time) / 1000) * 100) / 100 + 's</span>';
+            scoreText += ' <p class="fps">FPS: <span>' + Math.round(fps) + ' (' + Math.round(Math.max(Math.min(fps / FRAMERATE, FRAMERATE), 0) * 100) + '%)</span></p>';
+            status.innerHTML = scoreText;
+
+            if (player.energy === 0) {
+                emitParticles(player.position, {x: 0, y: 0}, 10, 40);
+
+                gameOver();
+
+                // play sound
+                CoreAudio.playGameOver();
+            }
+        }
+
+        requestAnimFrame(animate);
+    }
+
+    /**
+     *
+     */
+    function giveLife(organism) {
+        var side = Math.round(Math.random() * 3);
+
+        switch (side) {
+            case 0:
+                organism.position.x = 10;
+                organism.position.y = world.height * Math.random();
+                break;
+            case 1:
+                organism.position.x = world.width * Math.random();
+                organism.position.y = 10;
+                break;
+            case 2:
+                organism.position.x = world.width - 10;
+                organism.position.y = world.height * Math.random();
+                break;
+            case 3:
+                organism.position.x = world.width * Math.random();
+                organism.position.y = world.height - 10;
+                break;
+        }
+
+        if (playing) CoreAudio.playSynth(organism.position.x / world.width);
+
+        organism.speed = Math.min(Math.max(Math.random(), 0.6), 0.75);
+
+        organism.velocity.x = (player.position.x - organism.position.x) * 0.006 * organism.speed;
+        organism.velocity.y = (player.position.y - organism.position.y) * 0.006 * organism.speed;
+
+        if (organism.type == 'enemy') {
+            organism.velocity.x *= (1 + (Math.random() * 0.1));
+            organism.velocity.y *= (1 + (Math.random() * 0.1));
+        }
+
+        organism.alpha = 0;
+
+        return organism;
+    }
 
 };
 
-function Point( x, y ) {
-	this.position = { x: x, y: y };
+function Point(x, y) {
+    this.position = {x: x, y: y};
 }
-Point.prototype.distanceTo = function(p) {
-	var dx = p.x-this.position.x;
-	var dy = p.y-this.position.y;
-	return Math.sqrt(dx*dx + dy*dy);
+
+Point.prototype.distanceTo = function (p) {
+    var dx = p.x - this.position.x;
+    var dy = p.y - this.position.y;
+    return Math.sqrt(dx * dx + dy * dy);
 };
-Point.prototype.clonePosition = function() {
-	return { x: this.position.x, y: this.position.y };
+Point.prototype.clonePosition = function () {
+    return {x: this.position.x, y: this.position.y};
 };
 
 function Player() {
-	this.position = { x: 0, y: 0 };
-	this.length = 15;
-	this.energy = 30;
-	this.energyRadius = 0;
-	this.energyRadiusTarget = 0;
-	this.radius = 60;
-	this.angle = 0;
-	this.coreQuality = 16;
-	this.coreNodes = [];
-	this.projects = [];
-	this.currentProject = new Project();
-	this.currentProjectIndex = 0;
+    this.position = {x: 0, y: 0};
+    this.length = 15;
+    this.energy = 30;
+    this.energyRadius = 0;
+    this.energyRadiusTarget = 0;
+	this.energyIncOffset = 10;
+    this.radius = 60;
+    this.angle = 0;
+    this.coreQuality = 16;
+    this.coreNodes = [];
+    this.projects = [];
+    this.currentProject = new Project();
+    this.currentProjectIndex = 0;
 }
+
 Player.prototype = new Point();
-Player.prototype.setProjects = function(projectIds) {
-	var i,j;
-	
-	for(i=0; i<projectIds.length; i++){
-		for(j=0; j<projects.length; j++){
-			if(projectIds[i] == projects[j].id)
-			{
-				this.projects.push(projects[j]);
-			}
-		}
-	}
+Player.prototype.setProjects = function (projectIds) {
+    var i, j;
 
 	this.currentProject = projects[0];
 	console.log(this.currentProject.color);
 }
 
 Player.prototype.updateCurrentProject = function(){
-	var i,proj,ind;
-	for(i=0; i<this.projects.length - 1; i++){
-		if(this.currentProject == projects[i])
-		{
-			proj = projects[i+1];
-			ind = i+1;
-			continue;
-		}
-	}
-
-	this.currentProject = proj;
-	this.currentProjectIndex = ind;
+	var i,ind;
+	this.currentProjectIndex++;
+	this.currentProject = projects[this.currentProjectIndex];
 }
 
-Player.prototype.updateCore = function() {
-	var i, j, n;
+Player.prototype.updateCore = function () {
+    var i, j, n;
 
-	if( this.coreNodes.length == 0 ) {
-		var i, n;
+    if (this.coreNodes.length == 0) {
+        var i, n;
 
-		for (i = 0; i < this.coreQuality; i++) {
-			n = {
-				position: { x: this.position.x, y: this.position.y },
-				normal: { x: 0, y: 0 },
-				normalTarget: { x: 0, y: 0 },
-				offset: { x: 0, y: 0 }
-			};
+        for (i = 0; i < this.coreQuality; i++) {
+            n = {
+                position: {x: this.position.x, y: this.position.y},
+                normal: {x: 0, y: 0},
+                normalTarget: {x: 0, y: 0},
+                offset: {x: 0, y: 0}
+            };
 
-			this.coreNodes.push( n );
-		}
-	}
+            this.coreNodes.push(n);
+        }
+    }
 
-	for (i = 0; i < this.coreQuality; i++) {
+    for (i = 0; i < this.coreQuality; i++) {
 
-		var n = this.coreNodes[i];
+        var n = this.coreNodes[i];
 
-		var angle = ( i / this.coreQuality ) * Math.PI * 2;
+        var angle = (i / this.coreQuality) * Math.PI * 2;
 
-		n.normal.x = Math.cos( angle ) * this.energyRadius;
-		n.normal.y = Math.sin( angle ) * this.energyRadius;
+        n.normal.x = Math.cos(angle) * this.energyRadius;
+        n.normal.y = Math.sin(angle) * this.energyRadius;
 
-		n.offset.x = Math.random() * 5;
-		n.offset.y = Math.random() * 5;
-	}
+        n.offset.x = Math.random() * 5;
+        n.offset.y = Math.random() * 5;
+    }
 };
 
 function Enemy() {
-	this.position = { x: 0, y: 0 };
-	this.velocity = { x: 0, y: 0 };
-	this.size = 6 + ( Math.random() * 4 );
-	this.speed = 1;
-	this.type = 'enemy';
+    this.position = {x: 0, y: 0};
+    this.velocity = {x: 0, y: 0};
+    this.size = 50 + (Math.random() * 4);
+    this.speed = 1;
+    this.type = 'enemy';
 }
+
 Enemy.prototype = new Point();
 
 function Energy() {
-	this.position = { x: 0, y: 0 };
-	this.velocity = { x: 0, y: 0 };
-	this.size = 10 + ( Math.random() * 6 );
-	this.speed = 1;
-	this.type = 'energy';
+    this.position = {x: 0, y: 0};
+    this.velocity = {x: 0, y: 0};
+    this.size = 70 + (Math.random() * 6);
+    this.speed = 1;
+    this.type = 'energy';
 }
+
 Energy.prototype = new Point();
 
 function Project(id, color, name) {
-	this.id = id;
-	this.color = color;
-	this.name = name;
+    this.id = id;
+    this.color = color;
+    this.name = name;
 }
 
 const projects = [
-	new Project(1, '#F5E5CD', 'Fini'),
-	new Project(2, '#C8E363', 'Oak'),
-	new Project(3, '#5720F5', 'Onboard'),
-	new Project(4, '#1852F0', 'Base')
-  ];
+    new Project(1, '#F5E5CD', 'Fini'),
+    new Project(2, '#C8E363', 'Oak'),
+    new Project(3, '#5720F5', 'Onboard'),
+    new Project(4, '#1852F0', 'Base')
+];
 
 // shim with setTimeout fallback from http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-window.requestAnimFrame = (function(){
-  return  window.requestAnimationFrame       ||
-          window.webkitRequestAnimationFrame ||
-          window.mozRequestAnimationFrame    ||
-          window.oRequestAnimationFrame      ||
-          window.msRequestAnimationFrame     ||
-          function(/* function */ callback, /* DOMElement */ element){
+window.requestAnimFrame = (function () {
+    return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.oRequestAnimationFrame ||
+        window.msRequestAnimationFrame ||
+        function (/* function */ callback, /* DOMElement */ element) {
             window.setTimeout(callback, 1000 / 60);
-          };
+        };
 })();
 
 Core.init();
