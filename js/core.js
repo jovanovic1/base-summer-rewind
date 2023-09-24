@@ -113,7 +113,8 @@ var Core = new function(){
 
 			// Define our player
 			player = new Player();
-			player.setProjects([1,2,3]);
+			proj1  = Math.floor(Math.random() * (4 - 2 + 1)) + 2;
+			player.setProjects([1,2,proj1]);
 			console.log(player.projects);
 
 			// Force an initial resize to make sure the UI is sized correctly
