@@ -116,8 +116,9 @@ var Core = new function(){
 
 	function renderBackground() {
 		var gradient = contextBackground.createRadialGradient( world.width * 0.5, world.height * 0.5, 0, world.width * 0.5, world.height * 0.5, 500 );
-		gradient.addColorStop(0,'rgba(22, 82, 240, 1)');
-		gradient.addColorStop(1,'rgba(55, 105, 241, 1)');
+
+		gradient.addColorStop(0,'rgb(253,253,253)');
+		gradient.addColorStop(1,'rgb(13,236,236)');
 
 		contextBackground.fillStyle = gradient;
 		contextBackground.fillRect( 0, 0, world.width, world.height );
@@ -364,7 +365,7 @@ var Core = new function(){
 		if( playing ) {
 
 			// Increment the difficulty slightly
-			difficulty += 0.0015;
+			difficulty += 0.0009;
 
 			// Increment the score depending on difficulty
 			score += (0.4 * difficulty) * scoreFactor;
@@ -399,7 +400,7 @@ var Core = new function(){
 
 			// Core
 			context.beginPath();
-			context.fillStyle = "#249d93";
+			context.fillStyle = "#f585de";
 			context.strokeStyle = "#3be2d4";
 			context.lineWidth = 1.5;
 
@@ -458,8 +459,13 @@ var Core = new function(){
 
 			p.alpha += ( 1 - p.alpha ) * 0.1;
 
-			if( p.type == ORGANISM_ENEMY ) context.fillStyle = 'rgba( 255, 0, 0, ' + p.alpha + ' )';
-			if( p.type == ORGANISM_ENERGY ) context.fillStyle = 'rgba( 0, 235, 190, ' + p.alpha + ' )';
+			if( p.type == ORGANISM_ENEMY ) context.fillStyle = 'rgba( 105, 105, 105, ' + p.alpha + ' )';
+			if( p.type == ORGANISM_ENERGY ){
+				if (i % 2 == 0)
+					context.fillStyle = 'rgba( 255, 182, 193, ' + p.alpha + ' )';
+				else
+					context.fillStyle = 'rgba( 255, 105, 150, ' + p.alpha + ' )';
+			}
 
 			context.beginPath();
 			context.arc(p.position.x, p.position.y, p.size/2, 0, Math.PI*2, true);
@@ -530,13 +536,13 @@ var Core = new function(){
 		}
 
 		// If there are less enemies than intended for this difficulty, add another one
-		if( enemyCount < 1 * difficulty && new Date().getTime() - lastspawn > 100 ) {
+		if( enemyCount < 1 * difficulty && new Date().getTime() - lastspawn > 500 ) {
 			organisms.push( giveLife( new Enemy() ) );
 			lastspawn = new Date().getTime();
 		}
 
 		//
-		if( energyCount < 1 && Math.random() > 0.996 ) {
+		if( energyCount < 1 && Math.random() > 0.995 ) {
 			organisms.push( giveLife( new Energy() ) );
 		}
 
