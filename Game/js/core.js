@@ -146,8 +146,8 @@ var Core = new function(){
 			wallet.style.display = 'none';
 			status.style.display = 'none';
 			loginButton.style.display = 'none';
-			startT.innerHTML = `You minted ${player.projects.length} nfts during Summer <br>. <br> Protect the core from red projectiles 
-			<br>.<br>Collect summer NFTs to stabilize the core <br>`
+			startT.innerHTML = `You minted ${player.projects.length} nfts during Summer <br> <br> Protect the core from red projectiles 
+			<br><br>Collect summer NFTs to stabilize the core <br>`
 			startButton.style.display = 'inline';
 		}
 	}
@@ -813,7 +813,7 @@ Player.prototype.updateCore = function () {
 function Enemy() {
     this.position = {x: 0, y: 0};
     this.velocity = {x: 0, y: 0};
-    this.size = 5 + (Math.random() * 4);
+    this.size = 15 + (Math.random() * 4);
     this.speed = 1;
     this.type = 'enemy';
 }
