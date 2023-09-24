@@ -469,15 +469,17 @@ var Core = new function(){
 			context.fill();
 			context.stroke();
 
-			if(player.currentProjectIndex >0)
+			if(player.currentProjectIndex >=0)
 			{
 				var i,j;
-				for(i=0; i<player.currentProjectIndex-1; i++)
+				console.log("###",player);
+				for(i=0; i<=player.currentProjectIndex-1; i++)
 				{
+					console.log("###",player.projects[i]);
 					context.beginPath();
 					context.strokeStyle = player.projects[i].color;
-					context.lineWidth = player.energyIncOffset * i;
-					context.arc( player.position.x, player.position.y, player.energyRadius, 0, Math.PI*2, true );
+					context.lineWidth = 5 * [i+1];
+					context.arc( player.position.x, player.position.y, player.energyRadius + 5, 0, Math.PI*2, true );
 					context.stroke();
 				}
 			}
@@ -695,11 +697,11 @@ Point.prototype.clonePosition = function () {
 function Player() {
     this.position = {x: 0, y: 0};
     this.length = 15;
-    this.energy = 30;
+    this.energy = 100;
     this.energyRadius = 0;
     this.energyRadiusTarget = 0;
 	this.energyIncOffset = 10;
-    this.radius = 60;
+    this.radius = 150;
     this.angle = 0;
     this.coreQuality = 16;
     this.coreNodes = [];
@@ -711,6 +713,14 @@ function Player() {
 Player.prototype = new Point();
 Player.prototype.setProjects = function (projectIds) {
     var i, j;
+	for(i=0; i<projectIds.length; i++){
+		for(j=0; j<projects.length; j++){
+			if(projectIds[i] == projects[j].id)
+			{
+				this.projects.push(projects[j]);
+			}
+		}
+	}
 
 	this.currentProject = projects[0];
 	console.log(this.currentProject.color);
