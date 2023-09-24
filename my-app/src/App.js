@@ -1,8 +1,9 @@
+import './App.css';
 import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react'
 
 import { WagmiConfig } from 'wagmi'
 import { arbitrum, mainnet } from 'wagmi/chains'
-import RewindGame from './Components/RewindGame';
+import Profile from './Views/Profile';
 
 
 // 1. Get projectId
@@ -18,19 +19,13 @@ createWeb3Modal({ wagmiConfig, projectId, chains })
 export default function App() {
   return (
     <WagmiConfig config={wagmiConfig}>
-        <w3m-button style={{alignContent: 'center'}}/>
-        <div className="App">
-        <header className="App-header">
-          <RewindGame/>
-        </header>
-      </div>
+          <Profile/>
     </WagmiConfig>
   )
 }
 
 
 // import logo from './logo.svg';
-// import './App.css';
 // import ConcentricCircles from './Components/ConcentricCircles';
 // import RewindLevel from './Components/RewindLevel';
 // import RewindGame from './Components/RewindGame';

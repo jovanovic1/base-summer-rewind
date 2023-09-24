@@ -13,6 +13,11 @@
   }
 }
 
+.h1 {
+  font-family: 'VT323', monospace;
+  color: black;
+}
+
 .App-header {
   background: radial-gradient(#004646, #00080e);
   min-height: 100vh;

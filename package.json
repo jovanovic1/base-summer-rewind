@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@quicknode/sdk": "^1.1.4",
+    "react-particles": "^2.12.2",
+    "tsparticles-slim": "^2.12.0"
+  }
+}
