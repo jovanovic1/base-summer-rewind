@@ -30,6 +30,9 @@ var Core = new function(){
 	var canvasBackground,
 		contextBackground;
 
+	//Web3 login
+	var isLoggedIn;
+
 	// UI DOM elements
 	var status;
 	var panels;
@@ -82,6 +85,9 @@ var Core = new function(){
 		message = document.getElementById('message');
 		title = document.getElementById('title');
 		startButton = document.getElementById('startButton');
+		loginButton = document.getElementById('loginButton');
+		wallet = document.getElementById('wallet');
+		isLoggedIn = false;
 
 		if (canvas && canvas.getContext) {
 			context = canvas.getContext('2d');
@@ -97,6 +103,7 @@ var Core = new function(){
 			document.addEventListener('touchend', documentTouchEndHandler, false);
 			window.addEventListener('resize', windowResizeHandler, false);
 			startButton.addEventListener('click', startButtonClickHandler, false);
+			loginButton.addEventListener('click', loginButtonClicked, false);
 			document.addEventListener('keydown', documentKeyDownHandler, false);
 			document.addEventListener('keyup', documentKeyUpHandler, false);
 
@@ -127,6 +134,16 @@ var Core = new function(){
 		contextBackground.fillRect( 0, 0, world.width, world.height );
 	}
 
+	function loginButtonClicked(event){
+		if(!isLoggedIn){
+			isLoggedIn = true;
+			wallet.style.display = 'none';
+			status.style.display = 'none';
+			loginButton.style.display = 'none';
+			startButton.style.display = 'inline';
+		}
+	}
+
 	/**
 	 * Handles click on the start button in the UI.
 	 */
@@ -150,7 +167,7 @@ var Core = new function(){
 
 			// Hide the game UI
 			panels.style.display = 'none';
-			status.style.display = 'block';
+			status.style.display = 'none';
 
 			time = new Date().getTime();
 
@@ -767,7 +784,7 @@ Player.prototype.updateCore = function () {
 function Enemy() {
     this.position = {x: 0, y: 0};
     this.velocity = {x: 0, y: 0};
-    this.size = 50 + (Math.random() * 4);
+    this.size = 5 + (Math.random() * 4);
     this.speed = 1;
     this.type = 'enemy';
 }
@@ -777,7 +794,7 @@ Enemy.prototype = new Point();
 function Energy() {
     this.position = {x: 0, y: 0};
     this.velocity = {x: 0, y: 0};
-    this.size = 70 + (Math.random() * 6);
+    this.size = 30 + (Math.random() * 6);
     this.speed = 1;
     this.type = 'energy';
 }
