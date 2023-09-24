@@ -116,8 +116,8 @@ var Core = new function(){
 
 	function renderBackground() {
 		var gradient = contextBackground.createRadialGradient( world.width * 0.5, world.height * 0.5, 0, world.width * 0.5, world.height * 0.5, 500 );
-		gradient.addColorStop(0,'rgba(0, 70, 70, 1)');
-		gradient.addColorStop(1,'rgba(0, 8, 14, 1)');
+		gradient.addColorStop(0,'rgba(22, 82, 240, 1)');
+		gradient.addColorStop(1,'rgba(55, 105, 241, 1)');
 
 		contextBackground.fillStyle = gradient;
 		contextBackground.fillRect( 0, 0, world.width, world.height );
@@ -257,8 +257,8 @@ var Core = new function(){
 	 */
 	function windowResizeHandler() {
 		// Update the game size
-		world.width = isMobile ? window.innerWidth : DEFAULT_WIDTH;
-		world.height = isMobile ? window.innerHeight : DEFAULT_HEIGHT;
+		world.width = isMobile ? window.innerWidth : window.innerWidth;
+		world.height = isMobile ? window.innerHeight : window.innerHeight;
 
 		// Center the player
 		player.position.x = world.width * 0.5;
