@@ -28,13 +28,11 @@
 				<div id="wallet" class="ui2" style="display: none;"><h2>0x5999...4969</h2></div>
 				<div id="message" class="ui">
 					<h1 id="title">Rewind: Base OnChain Summer</h1>
-					<p>
-						Mint your Base Rewind NFT. 
-						<!-- <em>Press &amp; hold SPACE</em> for a temporary shield. -->
-					</p>
-					<p>Protect the core from red projectiles.</p>
-					<p>Collect colour orbs to stabilize the core. </p>
-					<p>Each core is a project you minted during Summer</p>
+					<p id = "walletT">Connect your wallet to rewind</p>
+					<p>Collect your summer NFTs once more :&#41</p>
+					<p id = "startT" style="display: none; padding: 0px 0px 15px 0px">You minted 4 nfts during Summer. <br> Let's rewind</p>
+					<!-- <p>Protect the core from red projectiles.</p> -->
+					<!-- <p>Collect summer NFTs to stabilize the core. </p> -->
 					<button id="loginButton" class="start-button">Connect Wallet</button>
 					<button id="startButton" class="start-button" style="display: none">Start game</button>
 			</div>
@@ -46,6 +44,8 @@
 			</p>
 		</canvas>
 		<canvas id="background"></canvas>
+
+		<p id="collector" style="position: absolute; bottom: 20px; left: 44%; font-size: 30px; text-align: center;">REWIND</p>
 
 		<script src="js/timbre.js"></script>
 		<script src="js/core-audio.js"></script>

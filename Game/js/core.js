@@ -87,6 +87,9 @@ var Core = new function(){
 		startButton = document.getElementById('startButton');
 		loginButton = document.getElementById('loginButton');
 		wallet = document.getElementById('wallet');
+		walletT = document.getElementById('walletT');
+		startT = document.getElementById('startT');
+		collector = document.getElementById("collector");
 		isLoggedIn = false;
 
 		if (canvas && canvas.getContext) {
@@ -137,9 +140,13 @@ var Core = new function(){
 	function loginButtonClicked(event){
 		if(!isLoggedIn){
 			isLoggedIn = true;
+			walletT.style.display = 'none';
+			startT.style.display = 'inline';
 			wallet.style.display = 'none';
 			status.style.display = 'none';
 			loginButton.style.display = 'none';
+			startT.innerHTML = `You minted ${player.projects.length} nfts during Summer <br>. <br> Protect the core from red projectiles 
+			<br>.<br>Collect summer NFTs to stabilize the core <br>`
 			startButton.style.display = 'inline';
 		}
 	}
@@ -173,6 +180,8 @@ var Core = new function(){
 
 			//state reset
 			lastRound = false;
+
+			collector.innerHTML = `Collecting ${player.currentProject.name} NFT`;
 		}
 	}
 
@@ -434,6 +443,7 @@ var Core = new function(){
 					}
 					else{
 						console.log("##lol");
+						collector.innerHTML = `Collected ${player.currentProject.name} NFT`;
 						player.updateCurrentProject();
 						scoreOnLastUpdate = score;
 						player.energyRadiusTarget += player.energyIncOffset;
