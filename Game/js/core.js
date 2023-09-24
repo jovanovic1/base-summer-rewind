@@ -761,7 +761,7 @@ Player.prototype.setProjects = function (projectIds) {
     var i, j;
 	for(i=0; i<projectIds.length; i++){
 		for(j=0; j<projects.length; j++){
-			if(projectIds[i] == projects[j].id)
+			if(projectIds[i] == projects[j].id - 1)
 			{
 				this.projects.push(projects[j]);
 			}
