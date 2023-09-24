@@ -531,13 +531,13 @@ var Core = new function(){
 		}
 
 		// If there are less enemies than intended for this difficulty, add another one
-		if( enemyCount < 1 * difficulty && new Date().getTime() - lastspawn > 100 ) {
+		if( enemyCount < 1 * difficulty && new Date().getTime() - lastspawn > 500 ) {
 			organisms.push( giveLife( new Enemy() ) );
 			lastspawn = new Date().getTime();
 		}
 
 		//
-		if( energyCount < 1 && Math.random() > 0.996 ) {
+		if( energyCount < 1 && Math.random() > 0.995 ) {
 			organisms.push( giveLife( new Energy() ) );
 		}
 
