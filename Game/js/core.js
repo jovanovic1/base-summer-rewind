@@ -90,6 +90,7 @@ var Core = new function(){
 		walletT = document.getElementById('walletT');
 		startT = document.getElementById('startT');
 		collector = document.getElementById("collector");
+		titleT = document.getElementById('titleT');
 		isLoggedIn = false;
 
 		if (canvas && canvas.getContext) {
@@ -208,6 +209,24 @@ var Core = new function(){
 		scoreText = 'Score: <span>' + Math.round( score ) + '</span>';
 		scoreText += ' Time: <span>' + Math.round( ( ( new Date().getTime() - time ) / 1000 ) * 100 ) / 100 + 's</span>';
 		status.innerHTML = scoreText;
+	}
+
+	function gameFinished() {
+		playing = false;
+
+		// Determine the duration of the game
+		duration = new Date().getTime() - time;
+
+		// Show the UI
+		panels.style.display = 'block';
+
+		// Ensure that the score is an integer
+		score = Math.round(score);
+
+		// Write the users score to the UI
+		title.innerHTML = `Yay! Rewind Complete <br> ${score} points
+		<br> Your collection: <br> ${player.projects[0].name} NFT <br> ${player.projects[1].name} NFT <br> ${player.projects[2].name} NFT` ;
+		titleT.style.display = 'none';
 	}
 
 	function documentKeyDownHandler(event) {
@@ -349,7 +368,7 @@ var Core = new function(){
 			var p = new Point();
 			p.position.x = position.x + ( Math.sin(q) * spread );
 			p.position.y = position.y + ( Math.cos(q) * spread );
-			p.velocity = { x: direction.x + ( -1 + Math.random() * 2 ), y: direction.y + ( - 1 + Math.random() * 2 ) };
+			p.velocity = { x: (direction.x + ( -1 + Math.random() ))/5, y: (direction.y + ( - 1 + Math.random()))/5 };
 			p.alpha = 1;
 
 			particles.push( p );
@@ -439,7 +458,7 @@ var Core = new function(){
 					console.log("##11");
 					if(lastRound)
 					{
-						gameOver();
+						gameFinished();
 					}
 					else{
 						console.log("##lol");
@@ -728,7 +747,7 @@ function Player() {
     this.energyRadius = 0;
     this.energyRadiusTarget = 0;
 	this.energyIncOffset = 10;
-    this.radius = 150;
+    this.radius = 85;
     this.angle = 0;
     this.coreQuality = 16;
     this.coreNodes = [];
