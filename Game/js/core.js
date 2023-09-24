@@ -55,6 +55,8 @@ var Core = new function(){
 	var duration = 0;
 	var difficulty = 1;
 	var lastspawn = 0;
+	var lastRound = false;
+	var scoreOnLastUpdate = 0;
 
 	// Game statistics
 	var fc = 0; // Frame count
@@ -100,7 +102,8 @@ var Core = new function(){
 
 			// Define our player
 			player = new Player();
-			player.setProjects([1,2,3]);
+			player.setProjects([1,2]);
+			console.log(player.projects);
 
 			// Force an initial resize to make sure the UI is sized correctly
 			windowResizeHandler();
@@ -150,6 +153,9 @@ var Core = new function(){
 			status.style.display = 'block';
 
 			time = new Date().getTime();
+
+			//state reset
+			lastRound = false;
 		}
 	}
 
@@ -324,6 +330,38 @@ var Core = new function(){
 		}
 	}
 
+	function drawMultipleStrokeLayers(context, player, strokeColors) {
+    for (var j = 0; j < strokeColors.length; j++) {
+        context.beginPath();
+        context.strokeStyle = strokeColors[j]; // Use the color from the array
+        context.lineWidth = 2; // Adjust the width as needed
+
+        var loopedNodes = player.coreNodes.concat();
+		loopedNodes.push( player.coreNodes[0] );
+
+        for (var i = 0; i < loopedNodes.length; i++) {
+            p = loopedNodes[i];
+            p2 = loopedNodes[i + 1];
+
+            if (i == 0) {
+                // This is the first loop, so we need to start by moving into position
+                context.moveTo(p.position.x, p.position.y);
+            } else if (p2) {
+                // Draw a curve between the current and next trail point
+                context.quadraticCurveTo(
+                    p.position.x,
+                    p.position.y,
+                    p.position.x + (p2.position.x - p.position.x) / 2,
+                    p.position.y + (p2.position.y - p.position.y) / 2
+                );
+            }
+        }
+
+			// context.closePath();
+			// context.stroke();
+		}
+	}
+
 	/**
 	 * Called on every frame to update the game properties
 	 * and render the current state to the canvas.
@@ -370,6 +408,23 @@ var Core = new function(){
 			// Increment the score depending on difficulty
 			score += (0.4 * difficulty) * scoreFactor;
 
+			if(score>1){
+				if(Math.round(score)%300 == 0 && Math.round(score) >Math.round(scoreOnLastUpdate)){
+					if(lastRound)
+					{
+						gameOver();
+					}
+					else{
+						player.updateCurrentProject();
+						scoreOnLastUpdate = score;
+						if(player.currentProject == player.projects[player.projects.length - 1])
+						{
+							lastRound = true;
+						}
+					}
+				}
+			}
+
 			// Increase the game frame count stat
 			fc ++;
 
@@ -401,33 +456,17 @@ var Core = new function(){
 			// Core
 			context.beginPath();
 			context.fillStyle = player.currentProject.color;
-			context.strokeStyle = "##1852F0";
+			context.strokeStyle = player.currentProject.color;
 			context.lineWidth = 1.5;
-
-			player.updateCore();
-
-			var loopedNodes = player.coreNodes.concat();
-			loopedNodes.push( player.coreNodes[0] );
-
-			for( var i = 0; i < loopedNodes.length; i++ ) {
-				p = loopedNodes[i];
-				p2 = loopedNodes[i+1];
-
-				p.position.x += ( (player.position.x + p.normal.x + p.offset.x) - p.position.x ) * 0.2;
-				p.position.y += ( (player.position.y + p.normal.y + p.offset.y) - p.position.y ) * 0.2;
-
-				if( i == 0 ) {
-					// This is the first loop, so we need to start by moving into position
-					context.moveTo( p.position.x, p.position.y );
-				}
-				else if( p2 ) {
-					// Draw a curve between the current and next trail point
-					context.quadraticCurveTo( p.position.x, p.position.y, p.position.x + ( p2.position.x - p.position.x ) / 2, p.position.y + ( p2.position.y - p.position.y ) / 2 );
-				}
-			}
-
+			context.arc( player.position.x, player.position.y, player.energyRadius, 0, Math.PI*2, true );
 			context.closePath();
 			context.fill();
+			context.stroke();
+		
+			context.beginPath();
+			context.strokeStyle = '#648d93';
+			context.lineWidth = 5;
+			context.arc( player.position.x, player.position.y, player.energyRadius, 0, Math.PI*2, true );
 			context.stroke();
 
 		}
@@ -666,18 +705,22 @@ Player.prototype.setProjects = function(projectIds) {
 	}
 
 	this.currentProject = projects[0];
+	console.log(this.currentProject.color);
 }
 
 Player.prototype.updateCurrentProject = function(){
-	var i;
-	for(i=0; i<this.projects.length; i++){
+	var i,proj,ind;
+	for(i=0; i<this.projects.length - 1; i++){
 		if(this.currentProject == projects[i])
 		{
-			this.currentProject = projects[i+1];
-			this.currentProjectIndex = i+1;
-			return;
+			proj = projects[i+1];
+			ind = i+1;
+			continue;
 		}
 	}
+
+	this.currentProject = proj;
+	this.currentProjectIndex = ind;
 }
 
 Player.prototype.updateCore = function() {
